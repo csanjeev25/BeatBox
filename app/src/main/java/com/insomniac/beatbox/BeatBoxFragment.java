@@ -1,7 +1,9 @@
 package com.insomniac.beatbox;
 
 
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,10 +25,11 @@ public class BeatBoxFragment extends Fragment {
         return new BeatBoxFragment();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-
+        setRetainInstance(true);
         mBeatBox = new BeatBox(getActivity());
     }
 
@@ -40,18 +43,24 @@ public class BeatBoxFragment extends Fragment {
         return view;
     }
 
-    public class SoundHolder extends RecyclerView.ViewHolder{
+    public class SoundHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         private Button mButton;
 
         public SoundHolder(LayoutInflater inflater,ViewGroup container){
             super(inflater.inflate(R.layout.list_item_sound,container,false));
             mButton = (Button) itemView.findViewById(R.id.button);
+            mButton.setOnClickListener(this);
         }
 
         public void bindHolder(Sound sound){
             mSound = sound;
             mButton.setText(mSound.getName());
+        }
+
+        @Override
+        public void onClick(View view){
+            mBeatBox.play(mSound);
         }
 
     }
@@ -80,5 +89,11 @@ public class BeatBoxFragment extends Fragment {
         public int getItemCount() {
             return mSounds.size();
         }
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        mBeatBox.release();
     }
 }

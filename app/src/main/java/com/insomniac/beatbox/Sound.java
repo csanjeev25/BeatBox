@@ -11,6 +11,16 @@ public class Sound {
     private String mName;
     private static final String TAG = "Sound";
 
+    public Integer getSoundId() {
+        return mSoundId;
+    }
+
+    public void setSoundId(Integer soundId) {
+        mSoundId = soundId;
+    }
+
+    private Integer mSoundId;
+
     public String getAssetPath() {
         return mAssetPath;
     }
