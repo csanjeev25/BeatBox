@@ -3,23 +3,20 @@ package com.insomniac.beatbox;
 import android.util.Log;
 
 /**
- * Created by DELL on 12/19/2017.
+ * Created by Sanjeev on 12/19/2017.
  */
 
 public class Sound {
     private String mAssetPath;
     private String mName;
-    private static final String TAG = "Sound";
-
-    public Integer getSoundId() {
-        return mSoundId;
-    }
-
-    public void setSoundId(Integer soundId) {
-        mSoundId = soundId;
-    }
-
     private Integer mSoundId;
+
+    public Sound(String assetPath) {
+        mAssetPath = assetPath;
+        String[] components = assetPath.split("/");
+        String filename = components[components.length - 1];
+        mName = filename.replace(".wav", "");
+    }
 
     public String getAssetPath() {
         return mAssetPath;
@@ -29,11 +26,11 @@ public class Sound {
         return mName;
     }
 
-    public Sound(String assetPath){
-        mAssetPath = assetPath;
-        Log.d(TAG,assetPath);
-        String[] components = assetPath.split("/");
-        String fileName = components[components.length - 1];
-        mName = fileName.replace(".wav","");
+    public Integer getSoundId() {
+        return mSoundId;
+    }
+
+    public void setSoundId(Integer soundId) {
+        mSoundId = soundId;
     }
 }

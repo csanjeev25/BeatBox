@@ -1,6 +1,10 @@
 package com.insomniac.beatbox;
 
 
+/**
+ * Created by Sanjeev on 12/19/2017.
+ */
+
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
@@ -8,35 +12,23 @@ import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.util.Log;
-import android.widget.Toast;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 public class BeatBox {
     private static final String TAG = "BeatBox";
+
     private static final String SOUNDS_FOLDER = "sample_sounds";
-    private AssetManager mAssetManager;
-    private static final int MAX_SOUNDS = 7;
+    private static final int MAX_SOUNDS = 5;
+
+    private AssetManager mAssets;
+    private List<Sound> mSounds;
     private SoundPool mSoundPool;
 
-
-    public List<Sound> getSoundList() {
-        return mSoundList;
-    }
-
-    private List<Sound> mSoundList = new ArrayList<>();
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public BeatBox(Context context){
-        mAssetManager = context.getAssets();
+    public BeatBox(Context context) {
+        mAssets = context.getAssets();
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
             AudioAttributes audioAttributes = new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build();
             mSoundPool = new SoundPool.Builder().setAudioAttributes(audioAttributes).setMaxStreams(MAX_SOUNDS).build();
@@ -46,44 +38,49 @@ public class BeatBox {
         loadSounds();
     }
 
-    private void load(Sound sound) throws IOException{
-        AssetFileDescriptor assetFileDescriptor = mAssetManager.openFd(sound.getAssetPath());
-        int soundId = mSoundPool.load(assetFileDescriptor,1);
-        sound.setSoundId(soundId);
-    }
-
-    public void play(Sound sound){
+    public void play(Sound sound) {
         Integer soundId = sound.getSoundId();
-        if(soundId == null)
+        if (soundId == null) {
             return;
-        mSoundPool.play(soundId,1.0f,1.0f,1,1,1.0f);
+        }
+        mSoundPool.play(soundId, 1.0f, 1.0f, 1, 0, 1.0f);
     }
 
-    public void release(){
+    public void release() {
         mSoundPool.release();
     }
 
-    private void loadSounds(){
+    public List<Sound> getSounds() {
+        return mSounds;
+    }
+
+    private void loadSounds() {
+
         String[] soundNames;
-        try{
-            soundNames = mAssetManager.list(SOUNDS_FOLDER);
-            Log.i(TAG,"Found" + soundNames.length + "sounds" );
-        }catch (IOException e){
-            Log.e(TAG,"Could not load",e);
+        try {
+            soundNames = mAssets.list(SOUNDS_FOLDER);
+            Log.i(TAG, "Found " + soundNames.length + " sounds");
+        } catch (IOException ioe) {
+            Log.e(TAG, "Could not list assets", ioe);
             return;
         }
 
-        for(String fileName : soundNames){
+        mSounds = new ArrayList<Sound>();
+        for (String filename : soundNames) {
             try {
-                String assetPath = SOUNDS_FOLDER + "/" + fileName;
+                String assetPath = SOUNDS_FOLDER + "/" + filename;
                 Sound sound = new Sound(assetPath);
                 load(sound);
-                mSoundList.add(sound);
-            }catch (IOException e){
-                Log.e(TAG,"Could not load sound" + fileName,e);
+                mSounds.add(sound);
+            } catch (IOException ioe) {
+                Log.e(TAG, "Could not load sound " + filename, ioe);
             }
         }
+    }
 
-        Log.d(TAG,mSoundList.get(0).toString());
+    private void load(Sound sound) throws IOException {
+        AssetFileDescriptor afd = mAssets.openFd(sound.getAssetPath());
+        int soundId = mSoundPool.load(afd, 1);
+        sound.setSoundId(soundId);
     }
 }
